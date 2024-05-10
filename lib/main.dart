@@ -1,7 +1,15 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import 'package:quiz_flutter_web_api/pages/landing_page.dart';
+import 'package:quiz_flutter_web_api/provider/auth_provider.dart';
 
 void main() {
-  runApp(const MainApp());
+  runApp(
+    ChangeNotifierProvider(
+      create: (context) => AuthProvider(), // Ini membuat instance AuthProvider dan menyediakannya ke seluruh aplikasi
+      child: MainApp(), 
+    ),
+  );
 }
 
 class MainApp extends StatelessWidget {
@@ -10,11 +18,8 @@ class MainApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return const MaterialApp(
-      home: Scaffold(
-        body: Center(
-          child: Text('Hello World!'),
-        ),
-      ),
+      debugShowCheckedModeBanner: false,
+      home: LandingPage()  
     );
   }
 }

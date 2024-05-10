@@ -12,35 +12,14 @@ class FoodItem {
     required this.price,
     required this.imgName,
   });
-}
 
-List<FoodItem> foodItems = [
-  FoodItem(
-    id: 1,
-    title: 'Nasi Goreng',
-    description: 'Nasi goreng istimewa dengan bumbu tradisional.',
-    price: 20000,
-    imgName: 'food1.jpg',
-  ),
-  FoodItem(
-    id: 2,
-    title: 'Mie Goreng',
-    description: 'Mie goreng spesial dengan campuran bumbu rahasia.',
-    price: 15000,
-    imgName: 'food2.jpg',
-  ),
-  FoodItem(
-    id: 3,
-    title: 'Ayam Bakar',
-    description: 'Ayam bakar dengan cita rasa khas Indonesia.',
-    price: 25000,
-    imgName: 'food3.jpg',
-  ),
-  FoodItem(
-    id: 4,
-    title: 'Soto Ayam',
-    description: 'Soto ayam dengan kuah gurih dan daging ayam lembut.',
-    price: 18000,
-    imgName: 'food4.jpg',
-  ),
-];
+  factory FoodItem.fromJson(Map<String, dynamic> json) {
+    return FoodItem(
+      id: json['id'],
+      title: json['title'],
+      description: json['description'],
+      price: json['price'],
+      imgName: json['img_name'],
+    );
+  }
+}

@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:quiz_flutter_web_api/pages/login_form.dart';
+import 'package:quiz_flutter_web_api/pages/register_form.dart';
 
 void main() {
   runApp(MaterialApp(
@@ -46,7 +48,10 @@ class LandingPage extends StatelessWidget {
                   children: <Widget>[
                     ElevatedButton(
                       onPressed: () {
-                       
+                       Navigator.pushReplacement(
+                          context,
+                          MaterialPageRoute(builder: (context) => LoginForm()), // Sertakan access token saat membuat instance ItemListPage
+                        );
                       },
                       child: Text(
                         'Login',
@@ -60,7 +65,10 @@ class LandingPage extends StatelessWidget {
                     SizedBox(height: 20), // Jarak antara tombol login dan daftar
                     ElevatedButton(
                       onPressed: () {
-                        
+                        Navigator.pushReplacement(
+                          context,
+                          MaterialPageRoute(builder: (context) => RegistrationForm()), // Sertakan access token saat membuat instance ItemListPage
+                        );
                       },
                       child: Text(
                         'Daftar',

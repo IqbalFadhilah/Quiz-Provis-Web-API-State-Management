@@ -1,9 +1,8 @@
 import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
-import 'package:provider/provider.dart';
 
-import 'home_screen.dart';
+import 'item.dart'; // Jika Anda memiliki file item.dart untuk menampilkan item, Anda dapat menyertakan file tersebut di sini
 
 void main() {
   runApp(MaterialApp(
@@ -12,7 +11,6 @@ void main() {
   ));
 }
 
-// Fungsi untuk menangani kode status HTTP dan menampilkan pesan kesalahan yang sesuai
 void handlingStatusCode(BuildContext context, String message) {
   ScaffoldMessenger.of(context).showSnackBar(
     SnackBar(
@@ -21,6 +19,47 @@ void handlingStatusCode(BuildContext context, String message) {
     ),
   );
 }
+
+Future<String?> fetchAccessToken(String username, String password) async {
+  final apiUrl = 'http://146.190.109.66:8000/login';
+  final loginData = {'username': username, 'password': password};
+
+  final response = await http.post(
+    Uri.parse(apiUrl),
+    headers: <String, String>{
+      'accept': 'application/json',
+      'Content-Type': 'application/json',
+    },
+    body: jsonEncode(loginData),
+  );
+
+  if (response.statusCode == 200) {
+    final responseData = json.decode(response.body);
+    return responseData['access_token'];
+  } else {
+    throw Exception('Failed to fetch access token');
+  }
+}
+
+Future<void> fetchItems(String accessToken) async {
+  final apiUrl = 'http://146.190.109.66:8000/token';
+
+  final response = await http.get(
+    Uri.parse(apiUrl),
+    headers: <String, String>{
+      'accept': 'application/json',
+      'Authorization': 'Bearer $accessToken', // Gunakan token akses dalam header Authorization
+    },
+  );
+
+  if (response.statusCode == 200) {
+    // Handle response data
+    // Misalnya, Anda ingin mengambil data item setelah mendapatkan token akses tambahan
+  } else {
+    throw Exception('Failed to fetch items');
+  }
+}
+
 
 class LoginForm extends StatefulWidget {
   @override
@@ -31,6 +70,9 @@ class _LoginFormState extends State<LoginForm> {
   final _formKey = GlobalKey<FormState>();
   final _usernameController = TextEditingController();
   final _passwordController = TextEditingController();
+
+  // Variabel untuk menyimpan access token
+  String? accessToken;
 
   @override
   Widget build(BuildContext context) {
@@ -43,7 +85,7 @@ class _LoginFormState extends State<LoginForm> {
             children: <Widget>[
               Icon(
                 Icons.account_circle,
-                size: 100.0, // Atur ukuran ikon sesuai keinginan Anda
+                size: 100.0,
               ),
               TextFormField(
                 controller: _usernameController,
@@ -71,48 +113,24 @@ class _LoginFormState extends State<LoginForm> {
                 onPressed: () async {
                   if (_formKey.currentState!.validate()) {
                     try {
-                      final String apiUrl = 'http://146.190.109.66:8000/login';
-                      final Map<String, dynamic> loginData = {
-                        'username': _usernameController.text,
-                        'password': _passwordController.text,
-                      };
+                      final accessToken = await fetchAccessToken(_usernameController.text, _passwordController.text);
+                      print('Access token: $accessToken');
 
-                      final http.Response response = await http.post(
-                        Uri.parse(apiUrl),
-                        headers: <String, String>{
-                          'accept': 'application/json',
-                          'Content-Type': 'application/json',
-                        },
-                        body: jsonEncode(loginData),
-                      );
-
-                      if (response.statusCode == 200) {
-                        // Jika server mengembalikan response OK, maka login berhasil
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          SnackBar(content: Text('Login successful!')),
-                        );
-                        // Navigasi ke halaman beranda setelah login berhasil
+                      if (accessToken != null) {
+                        // Navigasi ke halaman berikutnya setelah mendapatkan access token
                         Navigator.pushReplacement(
                           context,
-                          MaterialPageRoute(builder: (context) => HomeScreen()),
+                          MaterialPageRoute(builder: (context) => ItemListPage(accessToken: accessToken)),
                         );
-                      } else {
-                        // Jika response tidak OK, tampilkan pesan error
-                        var responseData = json.decode(response.body);
-                        var errorMessage = responseData['message']; // Ganti 'message' dengan key yang sesuai dari API Anda
-                        handlingStatusCode(context, 'Failed to login: $errorMessage');
                       }
                     } catch (e) {
-                      handlingStatusCode(context, 'Failed to login.');
+                      handlingStatusCode(context, 'Failed to login: $e');
                     }
                   }
                 },
                 child: Text('Login'),
-                style: ButtonStyle(
-                  foregroundColor: MaterialStateProperty.all<Color>(Colors.white),
-                  backgroundColor: MaterialStateProperty.all<Color>(Color(0xFF00AA13)), // Warna hijau Gojek
-                ),
               ),
+
             ],
           ),
         ),

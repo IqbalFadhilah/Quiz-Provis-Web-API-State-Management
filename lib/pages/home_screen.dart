@@ -5,9 +5,12 @@ import 'package:quiz_flutter_web_api/model/CartItem.dart';
 import 'package:quiz_flutter_web_api/widget/foodWidget.dart';
 import 'package:quiz_flutter_web_api/pages/chart.dart';
 
+import '../provider/item_read.dart';
+
 void main() {
   runApp(MyApp());
 }
+
 
 class MyApp extends StatelessWidget {
   @override
@@ -18,7 +21,6 @@ class MyApp extends StatelessWidget {
     );
   }
 }
-
 
 class HomeScreen extends StatefulWidget {
   @override
@@ -32,11 +34,13 @@ class _HomeScreenState extends State<HomeScreen> {
   );
   late Timer _timer;
   List<CartItem> cartItems = [];
+  List<FoodItem> foodItems = [];
 
   @override
   void initState() {
     super.initState();
     _startTimer();
+    _fetchFoodItems(); // Panggil fungsi untuk mengambil data makanan
   }
 
   @override
@@ -61,7 +65,6 @@ class _HomeScreenState extends State<HomeScreen> {
 
   void _addToCart(FoodItem item) {
     setState(() {
-   
       var existingItem = cartItems.firstWhere(
         (element) => element.name == item.title,
         orElse: () => CartItem(
@@ -77,14 +80,27 @@ class _HomeScreenState extends State<HomeScreen> {
       }
       existingItem.quantity++;
     });
-  ScaffoldMessenger.of(context).showSnackBar(
-    SnackBar(
-      content: Text('${item.title} berhasil ditambahkan ke keranjang!'),
-      duration: Duration(seconds: 2),
-      behavior: SnackBarBehavior.floating,
-    ),
-  );
-}
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text('${item.title} berhasil ditambahkan ke keranjang!'),
+        duration: Duration(seconds: 2),
+        behavior: SnackBarBehavior.floating,
+      ),
+    );
+  }
+
+  // Fungsi untuk memanggil API dan mengambil data makanan
+  void _fetchFoodItems() async {
+    try {
+      // Panggil fungsi untuk mengambil data makanan dari API
+      List<FoodItem> items = await fetchFoodItemsFromAPI();
+      setState(() {
+        foodItems = items; // Setel state foodItems dengan data yang diterima dari API
+      });
+    } catch (error) {
+      print('Error fetching food items: $error');
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -158,7 +174,7 @@ class _HomeScreenState extends State<HomeScreen> {
           ),
         ],
       ),
-       bottomNavigationBar: BottomNavigationBar(
+      bottomNavigationBar: BottomNavigationBar(
         items: [
           BottomNavigationBarItem(
             icon: Icon(Icons.home),
@@ -195,9 +211,6 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 }
-
-
-
 
 class CustomBottomNavigationBar extends StatelessWidget {
   final int currentIndex;
