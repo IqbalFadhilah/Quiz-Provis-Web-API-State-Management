@@ -2,6 +2,7 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:quiz_flutter_web_api/model/food.dart';
 import 'package:quiz_flutter_web_api/model/CartItem.dart';
+import 'package:quiz_flutter_web_api/pages/statusOrder.dart';
 import 'package:quiz_flutter_web_api/widget/foodWidget.dart';
 import 'package:quiz_flutter_web_api/pages/chart.dart';
 
@@ -59,24 +60,7 @@ class _HomeScreenState extends State<HomeScreen> {
     });
   }
 
-  void _addToCart(FoodItem item) {
-    setState(() {
-   
-      var existingItem = cartItems.firstWhere(
-        (element) => element.name == item.title,
-        orElse: () => CartItem(
-          name: item.title,
-          imageUrl: item.imgName,
-          price: item.price.toDouble(),
-          quantity: 0,
-        ),
-      );
-
-      if (existingItem.quantity == 0) {
-        cartItems.add(existingItem);
-      }
-      existingItem.quantity++;
-    });
+void _addToCart(FoodItem item) {
   ScaffoldMessenger.of(context).showSnackBar(
     SnackBar(
       content: Text('${item.title} berhasil ditambahkan ke keranjang!'),
@@ -84,7 +68,31 @@ class _HomeScreenState extends State<HomeScreen> {
       behavior: SnackBarBehavior.floating,
     ),
   );
+
+  var existingItemIndex = cartItems.indexWhere((element) => element.name == item.title);
+
+  if (existingItemIndex != -1) {
+    setState(() {
+      cartItems[existingItemIndex].quantity++;
+    });
+  } else {
+    setState(() {
+      cartItems.add(CartItem(
+        name: item.title,
+        imageUrl: item.imgName,
+        price: item.price.toDouble(),
+        quantity: 1,
+      ));
+    });
+  }
+
+  // Kembali ke halaman CartScreen untuk memperbarui UI
+  Navigator.popAndPushNamed(context, '/cart');
 }
+
+
+
+
 
   @override
   Widget build(BuildContext context) {
@@ -169,7 +177,7 @@ class _HomeScreenState extends State<HomeScreen> {
             label: 'Keranjang',
           ),
           BottomNavigationBarItem(
-            icon: Icon(Icons.person),
+            icon: Icon(Icons.assignment),
             label: 'Profil',
           ),
         ],
@@ -187,6 +195,14 @@ class _HomeScreenState extends State<HomeScreen> {
               context,
               MaterialPageRoute(
                 builder: (BuildContext context) => HomeScreen(),
+              ),
+            );
+          }
+          else if (index == 2) {
+            Navigator.pushReplacement(
+              context,
+              MaterialPageRoute(
+                builder: (BuildContext context) => StatusPage(),
               ),
             );
           }
