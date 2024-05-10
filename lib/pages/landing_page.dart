@@ -15,60 +15,67 @@ class LandingPage extends StatelessWidget {
     double screenHeight = MediaQuery.of(context).size.height;
     double screenWidth = MediaQuery.of(context).size.width;
     return Scaffold(
-      body: Stack(
-        children: <Widget>[
-          Container(
-            height: screenHeight / 1.5, // Atur tinggi Container sesuai keinginan Anda
-            decoration: BoxDecoration(
-              image: DecorationImage(
-                image: AssetImage('assets/images/logo.png'), // Ganti dengan path logo Anda
-                fit: BoxFit.cover, // Anda bisa mengubah ini sesuai kebutuhan
-              ),
-              gradient: LinearGradient(
-                begin: Alignment.topCenter,
-                end: Alignment.bottomCenter,
-                colors: [Color(0xFFC0F3FF), Colors.white]),
-            ),
-          ),
-          Positioned(
-            top: screenHeight / 2,
-            left: 0,
-            right: 0,
-            child: Padding(
-              padding: EdgeInsets.all(20.0), // Atur padding sesuai keinginan Anda
-              child: Column(
-                children: <Widget>[
-                  ElevatedButton(
-                    onPressed: () {
-                     
-                    },
-                    child: Text(
-                      'Login',
-                    ),
-                    style: ButtonStyle(
-                      foregroundColor: MaterialStateProperty.all<Color>(Colors.white),
-                      backgroundColor: MaterialStateProperty.all<Color>(Colors.blue),
-                      minimumSize: MaterialStateProperty.all<Size>(Size(screenWidth * 0.5, 50))
-                    ),
+      body: Container(
+        height: screenHeight,
+        width: screenWidth,
+        decoration: BoxDecoration(
+          color: Colors.white,
+        ),
+        child: Stack(
+          children: <Widget>[
+            Positioned(
+              top: 100, // Atur posisi atas gambar sesuai keinginan Anda
+              left: screenWidth / 2 - 100, // Posisi tengah layar
+              child: Container(
+                width: 200.0, // Lebar gambar
+                height: 200.0, // Tinggi gambar
+                decoration: BoxDecoration(
+                  image: DecorationImage(
+                    image: AssetImage('assets/images/logo.png'),
                   ),
-                  SizedBox(height: 20), // Jarak antara tombol login dan daftar
-                  ElevatedButton(
-                    onPressed: () {
-                      
-                    },
-                    child: Text(
-                      'Daftar',
-                    ),
-                    style: ButtonStyle(
-                      backgroundColor: MaterialStateProperty.all<Color>(Colors.white),
-                      minimumSize: MaterialStateProperty.all<Size>(Size(screenWidth * 0.5, 50))
-                    ),
-                  ),
-                ],
+                ),
               ),
             ),
-          ),
-        ],
+            Positioned(
+              top: screenHeight / 2,
+              left: 0,
+              right: 0,
+              child: Padding(
+                padding: EdgeInsets.all(20.0), // Atur padding sesuai keinginan Anda
+                child: Column(
+                  children: <Widget>[
+                    ElevatedButton(
+                      onPressed: () {
+                       
+                      },
+                      child: Text(
+                        'Login',
+                      ),
+                      style: ButtonStyle(
+                        foregroundColor: MaterialStateProperty.all<Color>(Colors.white),
+                        backgroundColor: MaterialStateProperty.all<Color>(Color(0xFF00AA13)),
+                        minimumSize: MaterialStateProperty.all<Size>(Size(screenWidth * 0.5, 50))
+                      ),
+                    ),
+                    SizedBox(height: 20), // Jarak antara tombol login dan daftar
+                    ElevatedButton(
+                      onPressed: () {
+                        
+                      },
+                      child: Text(
+                        'Daftar',
+                      ),
+                      style: ButtonStyle(
+                        backgroundColor: MaterialStateProperty.all<Color>(Colors.white),
+                        minimumSize: MaterialStateProperty.all<Size>(Size(screenWidth * 0.5, 50))
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }
