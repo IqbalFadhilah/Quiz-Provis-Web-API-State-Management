@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 
+import '../provider/user_provider.dart';
+
 void main() {
   runApp(MaterialApp(
     debugShowCheckedModeBanner: false,
@@ -55,8 +57,10 @@ class _RegistrationFormState extends State<RegistrationForm> {
               ElevatedButton(
                 onPressed: () {
                   if (_formKey.currentState!.validate()) {
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      SnackBar(content: Text('Processing Data')),
+                    // Panggil Provider untuk melakukan pendaftaran
+                    Provider.of<UserProvider>(context, listen: false).register(
+                      _usernameController.text,
+                      _passwordController.text,
                     );
                   }
                 },
