@@ -13,7 +13,7 @@ class UserProvider with ChangeNotifier {
 
   Future<void> register(String username, String password) async {
     final response = await http.post(
-      Uri.parse('http://146.190.109.66:8000/user'), // Ganti dengan URL endpoint USER Anda
+      Uri.parse('http://146.190.109.66:8000/users/'), // Ganti dengan URL endpoint USER Anda
       body: jsonEncode(<String, String>{
         'username': username,
         'password': password,
