@@ -1,17 +1,20 @@
 import 'package:flutter/material.dart';
 import 'package:quiz_flutter_web_api/model/CartItem.dart';
 import 'package:quiz_flutter_web_api/pages/home_screen.dart';
+import 'package:quiz_flutter_web_api/pages/statusOrder.dart';
 
 void main() {
-  runApp(MyApp());
+  runApp(const MyApp());
 }
 
 class MyApp extends StatelessWidget {
+  const MyApp({Key? key}) : super(key: key);
+
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
-      home: HomeScreen(),
+      home: CartScreen(cartItems: const []),
     );
   }
 }
@@ -27,21 +30,51 @@ class CartScreen extends StatefulWidget {
 
 class _CartScreenState extends State<CartScreen> {
   int _currentIndex = 1;
+  bool _isPaid = false;
+
+  void _showConfirmationDialog() {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: const Text('Konfirmasi Pembayaran'),
+          content: const Text('Apakah Anda yakin ingin melakukan pembayaran?'),
+          actions: <Widget>[
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+              child: const Text('Batal'),
+            ),
+            TextButton(
+              onPressed: () {
+                setState(() {
+                  _isPaid = true;
+                });
+                Navigator.of(context).pop();
+              },
+              child: const Text('Ya'),
+            ),
+          ],
+        );
+      },
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
         leading: IconButton(
-          icon: Icon(Icons.arrow_back),
+          icon: const Icon(Icons.arrow_back),
           onPressed: () {
             Navigator.pop(context);
           },
         ),
-        title: Text('Keranjang Saya'),
+        title: const Text('Keranjang Saya'),
         actions: [
           IconButton(
-            icon: Icon(Icons.notifications),
+            icon: const Icon(Icons.notifications),
             onPressed: () {
               // Add notification functionality here
             },
@@ -51,10 +84,10 @@ class _CartScreenState extends State<CartScreen> {
       body: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          SizedBox(height: 20),
+          const SizedBox(height: 20),
           if (widget.cartItems.isNotEmpty)
             Container(
-              margin: EdgeInsets.symmetric(horizontal: 20),
+              margin: const EdgeInsets.symmetric(horizontal: 20),
               decoration: BoxDecoration(
                 border: Border.all(color: Colors.grey),
                 borderRadius: BorderRadius.circular(8.0),
@@ -78,48 +111,47 @@ class _CartScreenState extends State<CartScreen> {
                               ),
                             ),
                           ),
-                          SizedBox(width: 10),
+                          const SizedBox(width: 10),
                           Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
                               Text(
                                 item.name,
-                                style: TextStyle(fontWeight: FontWeight.bold),
+                                style: const TextStyle(fontWeight: FontWeight.bold),
                               ),
                               Text('Rp ${item.price.toString()}'),
                             ],
                           ),
                           Spacer(),
-                          IconButton(
-                            icon: Icon(Icons.remove_circle),
-                            onPressed: () {
-                              setState(() {
-                                widget.cartItems.remove(item);
-                              });
-                            },
-                          ),
+                          if (!_isPaid)
+                            IconButton(
+                              icon: const Icon(Icons.remove_circle),
+                              onPressed: () {
+                                setState(() {
+                                  widget.cartItems.remove(item);
+                                });
+                              },
+                            ),
                         ],
                       ),
                     ),
-                  SizedBox(height: 20),
+                  const SizedBox(height: 20),
                   Padding(
-                    padding: EdgeInsets.symmetric(horizontal: 20),
+                    padding: const EdgeInsets.symmetric(horizontal: 20),
                     child: SizedBox(
                       width: 120,
                       child: ElevatedButton(
-                        onPressed: () {
-                          // Function to pay
-                        },
+                        onPressed: _isPaid ? null : _showConfirmationDialog,
                         style: ElevatedButton.styleFrom(
-                          padding: EdgeInsets.symmetric(vertical: 12.0),
+                          padding: const EdgeInsets.symmetric(vertical: 12.0),
                           shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(8.0),
                           ),
-                          backgroundColor: Colors.green,
+                          backgroundColor: _isPaid ? Colors.grey : Colors.green,
                         ),
                         child: Text(
-                          'Bayar',
-                          style: TextStyle(fontSize: 14, color: Colors.white),
+                          _isPaid ? 'Sudah Bayar' : 'Bayar',
+                          style: const TextStyle(fontSize: 14, color: Colors.white),
                         ),
                       ),
                     ),
@@ -128,7 +160,7 @@ class _CartScreenState extends State<CartScreen> {
               ),
             ),
           if (widget.cartItems.isEmpty)
-            Center(
+            const Center(
               child: Text('Keranjang Anda Kosong'),
             ),
         ],
@@ -145,7 +177,12 @@ class _CartScreenState extends State<CartScreen> {
               ),
             );
           } else if (index == 2) {
-            // Go to profile screen
+             Navigator.pushReplacement(
+              context,
+              MaterialPageRoute(
+                builder: (BuildContext context) => StatusPage(),
+              ),
+            );
           }
         },
       ),
@@ -157,14 +194,14 @@ class CustomBottomNavigationBar extends StatelessWidget {
   final int currentIndex;
   final Function(int) onTap;
 
-  CustomBottomNavigationBar({required this.currentIndex, required this.onTap});
+  const CustomBottomNavigationBar({required this.currentIndex, required this.onTap});
 
   @override
   Widget build(BuildContext context) {
     return BottomNavigationBar(
       currentIndex: currentIndex,
       onTap: onTap,
-      items: [
+      items: const [
         BottomNavigationBarItem(
           icon: Icon(Icons.home),
           label: 'Home',
@@ -174,13 +211,10 @@ class CustomBottomNavigationBar extends StatelessWidget {
           label: 'Keranjang',
         ),
         BottomNavigationBarItem(
-          icon: Icon(Icons.person),
-          label: 'Profil',
+          icon: Icon(Icons.assignment),
+          label: 'Status', // Change label to 'Status'
         ),
       ],
     );
   }
 }
-
-
-
