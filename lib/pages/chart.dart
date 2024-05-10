@@ -1,7 +1,6 @@
-import 'dart:async';
 import 'package:flutter/material.dart';
+import 'package:quiz_flutter_web_api/model/CartItem.dart';
 import 'package:quiz_flutter_web_api/pages/home_screen.dart';
-
 
 void main() {
   runApp(MyApp());
@@ -12,12 +11,23 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
-      home: CartScreen(),
+      home: HomeScreen(),
     );
   }
 }
 
-class CartScreen extends StatelessWidget {
+class CartScreen extends StatefulWidget {
+  final List<CartItem> cartItems;
+
+  const CartScreen({Key? key, required this.cartItems}) : super(key: key);
+
+  @override
+  _CartScreenState createState() => _CartScreenState();
+}
+
+class _CartScreenState extends State<CartScreen> {
+  int _currentIndex = 1;
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -33,7 +43,7 @@ class CartScreen extends StatelessWidget {
           IconButton(
             icon: Icon(Icons.notifications),
             onPressed: () {
-              // Tambahkan fungsi notifikasi di sini
+              // Add notification functionality here
             },
           ),
         ],
@@ -42,161 +52,135 @@ class CartScreen extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
           SizedBox(height: 20),
-          Container(
-            margin: EdgeInsets.symmetric(horizontal: 20),
-            decoration: BoxDecoration(
-              border: Border.all(color: Colors.grey),
-              borderRadius: BorderRadius.circular(8.0),
+          if (widget.cartItems.isNotEmpty)
+            Container(
+              margin: EdgeInsets.symmetric(horizontal: 20),
+              decoration: BoxDecoration(
+                border: Border.all(color: Colors.grey),
+                borderRadius: BorderRadius.circular(8.0),
+              ),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  for (var item in widget.cartItems)
+                    Padding(
+                      padding: const EdgeInsets.all(8.0),
+                      child: Row(
+                        children: [
+                          Container(
+                            width: 80,
+                            height: 80,
+                            decoration: BoxDecoration(
+                              borderRadius: BorderRadius.circular(8.0),
+                              image: DecorationImage(
+                                image: AssetImage('assets/images/${item.imageUrl}'),
+                                fit: BoxFit.cover,
+                              ),
+                            ),
+                          ),
+                          SizedBox(width: 10),
+                          Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                item.name,
+                                style: TextStyle(fontWeight: FontWeight.bold),
+                              ),
+                              Text('Rp ${item.price.toString()}'),
+                            ],
+                          ),
+                          Spacer(),
+                          IconButton(
+                            icon: Icon(Icons.remove_circle),
+                            onPressed: () {
+                              setState(() {
+                                widget.cartItems.remove(item);
+                              });
+                            },
+                          ),
+                        ],
+                      ),
+                    ),
+                  SizedBox(height: 20),
+                  Padding(
+                    padding: EdgeInsets.symmetric(horizontal: 20),
+                    child: SizedBox(
+                      width: 120,
+                      child: ElevatedButton(
+                        onPressed: () {
+                          // Function to pay
+                        },
+                        style: ElevatedButton.styleFrom(
+                          padding: EdgeInsets.symmetric(vertical: 12.0),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(8.0),
+                          ),
+                          backgroundColor: Colors.green,
+                        ),
+                        child: Text(
+                          'Bayar',
+                          style: TextStyle(fontSize: 14, color: Colors.white),
+                        ),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
             ),
-            child: FoodItem(
-              name: 'Makanan 1',
-              imageUrl: 'assets/images/food1.jpg',
-              price: 20.00,
+          if (widget.cartItems.isEmpty)
+            Center(
+              child: Text('Keranjang Anda Kosong'),
             ),
-          ),
         ],
       ),
-      bottomNavigationBar: BottomAppBar(
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.spaceAround,
-          children: [
-            IconButton(
-              onPressed: () {
-                Navigator.pushReplacement(
-                  context,
-                  MaterialPageRoute(
-                    builder: (BuildContext context) => HomeScreen(),
-                  ),
-                );
-              },
-              icon: Icon(Icons.home),
-            ),
-            IconButton(
-              onPressed: () {},
-              icon: Icon(Icons.shopping_cart),
-            ),
-            IconButton(
-              onPressed: () {},
-              icon: Icon(Icons.person),
-            ),
-          ],
-        ),
+      bottomNavigationBar: CustomBottomNavigationBar(
+        currentIndex: _currentIndex,
+        onTap: (int index) {
+          // Handle navigation here
+          if (index == 0) {
+            Navigator.pushReplacement(
+              context,
+              MaterialPageRoute(
+                builder: (BuildContext context) => HomeScreen(),
+              ),
+            );
+          } else if (index == 2) {
+            // Go to profile screen
+          }
+        },
       ),
     );
   }
 }
 
-class FoodItem extends StatefulWidget {
-  final String name;
-  final String imageUrl;
-  final double price;
+class CustomBottomNavigationBar extends StatelessWidget {
+  final int currentIndex;
+  final Function(int) onTap;
 
-  FoodItem({required this.name, required this.imageUrl, required this.price});
-
-  @override
-  _FoodItemState createState() => _FoodItemState();
-}
-
-class _FoodItemState extends State<FoodItem> {
-  int _quantity = 1;
-  double _totalPrice = 0;
-
-  @override
-  void initState() {
-    super.initState();
-    _totalPrice = widget.price * _quantity;
-  }
-
-  void _decrementQuantity() {
-    setState(() {
-      if (_quantity > 1) {
-        _quantity--;
-        _totalPrice = widget.price * _quantity;
-      }
-    });
-  }
-
-  void _incrementQuantity() {
-    setState(() {
-      _quantity++;
-      _totalPrice = widget.price * _quantity;
-    });
-  }
-
-  void _removeItem() {
-    // Hapus makanan atau lakukan tindakan sesuai kebutuhan
-  }
+  CustomBottomNavigationBar({required this.currentIndex, required this.onTap});
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      padding: EdgeInsets.all(8.0),
-      child: Column(
-        children: [
-          Row(
-            children: [
-              Container(
-                width: 100,
-                height: 100,
-                decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(8.0),
-                  image: DecorationImage(
-                    image: AssetImage(widget.imageUrl),
-                    fit: BoxFit.cover,
-                  ),
-                ),
-              ),
-              SizedBox(width: 10),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      widget.name,
-                      style: TextStyle(
-                        fontWeight: FontWeight.bold,
-                        fontSize: 16,
-                      ),
-                    ),
-                    Text(
-                      '\$${_totalPrice.toStringAsFixed(2)}',
-                      style: TextStyle(
-                        fontWeight: FontWeight.bold,
-                        color: Colors.green,
-                        fontSize: 14,
-                      ),
-                    ),
-                    SizedBox(height: 10),
-                  ],
-                ),
-              ),
-              Container(
-                decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(8.0),
-                  border: Border.all(color: Colors.grey),
-                ),
-                child: Row(
-                  children: [
-                    IconButton(
-                      icon: Icon(Icons.remove),
-                      onPressed: _decrementQuantity,
-                    ),
-                    Text(
-                      _quantity.toString(),
-                      style: TextStyle(fontSize: 20),
-                    ),
-                    IconButton(
-                      icon: Icon(Icons.add),
-                      onPressed: _incrementQuantity,
-                    ),
-                  ],
-                ),
-              ),
-            ],
-          ),
-          SizedBox(height: 20),
-        ],
-      ),
+    return BottomNavigationBar(
+      currentIndex: currentIndex,
+      onTap: onTap,
+      items: [
+        BottomNavigationBarItem(
+          icon: Icon(Icons.home),
+          label: 'Home',
+        ),
+        BottomNavigationBarItem(
+          icon: Icon(Icons.shopping_cart),
+          label: 'Keranjang',
+        ),
+        BottomNavigationBarItem(
+          icon: Icon(Icons.person),
+          label: 'Profil',
+        ),
+      ],
     );
   }
 }
+
+
+

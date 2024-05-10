@@ -1,6 +1,9 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
-import 'package:carousel_slider/carousel_slider.dart';
+import 'package:quiz_flutter_web_api/model/food.dart';
+import 'package:quiz_flutter_web_api/model/CartItem.dart';
+import 'package:quiz_flutter_web_api/widget/foodWidget.dart';
+import 'package:quiz_flutter_web_api/pages/chart.dart';
 
 void main() {
   runApp(MyApp());
@@ -16,6 +19,7 @@ class MyApp extends StatelessWidget {
   }
 }
 
+
 class HomeScreen extends StatefulWidget {
   @override
   _HomeScreenState createState() => _HomeScreenState();
@@ -27,6 +31,7 @@ class _HomeScreenState extends State<HomeScreen> {
     initialPage: 0,
   );
   late Timer _timer;
+  List<CartItem> cartItems = [];
 
   @override
   void initState() {
@@ -54,6 +59,33 @@ class _HomeScreenState extends State<HomeScreen> {
     });
   }
 
+  void _addToCart(FoodItem item) {
+    setState(() {
+   
+      var existingItem = cartItems.firstWhere(
+        (element) => element.name == item.title,
+        orElse: () => CartItem(
+          name: item.title,
+          imageUrl: item.imgName,
+          price: item.price.toDouble(),
+          quantity: 0,
+        ),
+      );
+
+      if (existingItem.quantity == 0) {
+        cartItems.add(existingItem);
+      }
+      existingItem.quantity++;
+    });
+  ScaffoldMessenger.of(context).showSnackBar(
+    SnackBar(
+      content: Text('${item.title} berhasil ditambahkan ke keranjang!'),
+      duration: Duration(seconds: 2),
+      behavior: SnackBarBehavior.floating,
+    ),
+  );
+}
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -79,27 +111,24 @@ class _HomeScreenState extends State<HomeScreen> {
             border: InputBorder.none,
             isDense: true,
             contentPadding: EdgeInsets.symmetric(vertical: 16.0),
-            hintStyle: TextStyle(color: Colors.black), // Ubah warna hint text
+            hintStyle: TextStyle(color: Colors.black),
           ),
-          style: TextStyle(color: Colors.black), // Ubah warna teks
+          style: TextStyle(color: Colors.black),
         ),
       ),
       body: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          SizedBox(
+          Container(
             height: MediaQuery.of(context).size.height * 0.2,
-            child: CarouselSlider(
-              options: CarouselOptions(
-                autoPlay: true,
-                aspectRatio: 2.0,
-                onPageChanged: (index, reason) {
-                  setState(() {
-                    _currentIndex = index;
-                  });
-                },
-              ),
-              items: [
+            child: PageView(
+              controller: _pageController,
+              onPageChanged: (index) {
+                setState(() {
+                  _currentIndex = index;
+                });
+              },
+              children: [
                 PromoCard(imageUrl: 'assets/images/promo1.jpg'),
                 PromoCard(imageUrl: 'assets/images/promo2.jpg'),
                 PromoCard(imageUrl: 'assets/images/promo3.jpg'),
@@ -117,45 +146,19 @@ class _HomeScreenState extends State<HomeScreen> {
             ),
           ),
           Expanded(
-            child: ListView(
-              children: [
-                FoodItem(
-                  name: 'Nasi Goreng',
-                  imageUrl: 'assets/images/food1.jpg',
-                  price: 'Rp 20.000',
-                ),
-                FoodItem(
-                  name: 'Mie Goreng',
-                  imageUrl: 'assets/images/food2.jpg',
-                  price: 'Rp 15.000',
-                ),
-                FoodItem(
-                  name: 'Ayam Bakar',
-                  imageUrl: 'assets/images/food3.jpg',
-                  price: 'Rp 25.000',
-                ),
-                FoodItem(
-                  name: 'Soto Ayam',
-                  imageUrl: 'assets/images/food4.jpg',
-                  price: 'Rp 18.000',
-                ),
-              ],
+            child: ListView.builder(
+              itemCount: foodItems.length,
+              itemBuilder: (context, index) {
+                return FoodItemWidget(
+                  foodItem: foodItems[index],
+                  onAddToCart: _addToCart, // Pass the function here
+                );
+              },
             ),
           ),
         ],
       ),
-      bottomNavigationBar: BottomNavigationBar(
-        currentIndex: _currentIndex,
-        onTap: (index) {
-          setState(() {
-            _currentIndex = index;
-            _pageController.animateToPage(
-              _currentIndex,
-              duration: Duration(milliseconds: 500),
-              curve: Curves.easeInOut,
-            );
-          });
-        },
+       bottomNavigationBar: BottomNavigationBar(
         items: [
           BottomNavigationBarItem(
             icon: Icon(Icons.home),
@@ -170,7 +173,57 @@ class _HomeScreenState extends State<HomeScreen> {
             label: 'Profil',
           ),
         ],
+        onTap: (int index) {
+          // Handle navigation here
+          if (index == 1) {
+            Navigator.pushReplacement(
+              context,
+              MaterialPageRoute(
+                builder: (BuildContext context) => CartScreen(cartItems: cartItems),
+              ),
+            );
+          } else if (index == 0) {
+            Navigator.pushReplacement(
+              context,
+              MaterialPageRoute(
+                builder: (BuildContext context) => HomeScreen(),
+              ),
+            );
+          }
+        },
       ),
+    );
+  }
+}
+
+
+
+
+class CustomBottomNavigationBar extends StatelessWidget {
+  final int currentIndex;
+  final Function(int) onTap;
+
+  CustomBottomNavigationBar({required this.currentIndex, required this.onTap});
+
+  @override
+  Widget build(BuildContext context) {
+    return BottomNavigationBar(
+      currentIndex: currentIndex,
+      onTap: onTap,
+      items: [
+        BottomNavigationBarItem(
+          icon: Icon(Icons.home),
+          label: 'Home',
+        ),
+        BottomNavigationBarItem(
+          icon: Icon(Icons.shopping_cart),
+          label: 'Keranjang',
+        ),
+        BottomNavigationBarItem(
+          icon: Icon(Icons.person),
+          label: 'Profil',
+        ),
+      ],
     );
   }
 }
@@ -184,84 +237,13 @@ class PromoCard extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       margin: EdgeInsets.all(8.0),
+      width: MediaQuery.of(context).size.width * 0.8,
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(8.0),
         image: DecorationImage(
           image: AssetImage(imageUrl),
           fit: BoxFit.cover,
         ),
-      ),
-    );
-  }
-}
-
-class FoodItem extends StatelessWidget {
-  final String name;
-  final String imageUrl;
-  final String price;
-
-  FoodItem({required this.name, required this.imageUrl, required this.price});
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      padding: EdgeInsets.all(8.0),
-      margin: EdgeInsets.symmetric(vertical: 4.0, horizontal: 8.0),
-      decoration: BoxDecoration(
-        border: Border.all(color: Colors.grey),
-        borderRadius: BorderRadius.circular(8.0),
-      ),
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Container(
-            width: 100,
-            height: 100,
-            decoration: BoxDecoration(
-              borderRadius: BorderRadius.circular(8.0),
-              image: DecorationImage(
-                image: AssetImage(imageUrl),
-                fit: BoxFit.cover,
-              ),
-            ),
-          ),
-          SizedBox(width: 10),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  name,
-                  style: TextStyle(
-                    fontWeight: FontWeight.bold,
-                    fontSize: 16,
-                  ),
-                ),
-                Text(
-                  price,
-                  style: TextStyle(
-                    fontWeight: FontWeight.bold,
-                    color: Colors.green,
-                    fontSize: 14,
-                  ),
-                ),
-                SizedBox(height: 10),
-                ElevatedButton(
-                  onPressed: () {
-                    // Implementasi lihat detail
-                  },
-                  style: ButtonStyle(
-                    backgroundColor: MaterialStateProperty.all<Color>(Colors.green), // Warna latar belakang
-                  ),
-                  child: Text(
-                    'Lihat Detail',
-                    style: TextStyle(color: Colors.white), // Warna teks
-                  ),
-                ),
-              ],
-            ),
-          ),
-        ],
       ),
     );
   }
