@@ -83,6 +83,13 @@ class _LoginFormState extends State<LoginForm> {
           key: _formKey,
           child: Column(
             children: <Widget>[
+              Text(
+                'Login', // Tambahkan teks 'Register' di atas ikon
+                style: TextStyle(
+                  fontSize: 24,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
               Icon(
                 Icons.account_circle,
                 size: 100.0,
@@ -129,6 +136,10 @@ class _LoginFormState extends State<LoginForm> {
                   }
                 },
                 child: Text('Login'),
+                style: ButtonStyle(
+                  foregroundColor: MaterialStateProperty.all<Color>(Colors.white),
+                  backgroundColor: MaterialStateProperty.all<Color>(Color(0xFF00AA13)), // Warna hijau Gojek
+                ),
               ),
 
             ],

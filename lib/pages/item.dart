@@ -2,7 +2,9 @@ import 'dart:async';
 import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
-import 'package:quiz_flutter_web_api/pages/login_form.dart';
+
+
+import '../model/CartItem.dart';
 
 // Item class
 class Item {
@@ -112,6 +114,7 @@ class _ItemListPageState extends State<ItemListPage> {
 
   @override
   Widget build(BuildContext context) {
+    double screenHeight = MediaQuery.of(context).size.height;
     return Scaffold(
       appBar: AppBar(
         leading: GestureDetector(
@@ -278,6 +281,7 @@ class ItemListWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    double screenHeight = MediaQuery.of(context).size.height;
     return Container(
       padding: EdgeInsets.all(8.0),
       margin: EdgeInsets.symmetric(vertical: 4.0, horizontal: 8.0),
@@ -326,14 +330,14 @@ class ItemListWidget extends StatelessWidget {
                       context: context,
                       builder: (BuildContext context) {
                         return Container(
-                          height: MediaQuery.of(context).size.height * 0.5,
+                          height: screenHeight * 0.5,
                           padding: EdgeInsets.all(16.0),
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
                               Image.network(
-                                item.img_name,
-                                height: 200,
+                                'http://146.190.109.66:8000/items_image/${item.id}', headers: {'Authorization': 'Bearer $accessToken'},
+                                height: screenHeight / 5,
                                 width: double.infinity,
                                 fit: BoxFit.cover,
                               ),
@@ -425,5 +429,42 @@ class PromoCard extends StatelessWidget {
         ),
       ),
     );
+  }
+}
+
+class CartService {
+  final String apiUrl = 'http://146.190.109.66:8000/carts/';
+
+  Future<List<CartItem>> fetchUserCart(int userId) async {
+    final String url = '$apiUrl$userId';
+    final response = await http.get(Uri.parse(url));
+    if (response.statusCode == 200) {
+      final List<dynamic> data = json.decode(response.body);
+      return data.map((item) => CartItem.fromJson(item)).toList();
+    } else {
+      throw Exception('Failed to load cart items: ${response.statusCode}');
+    }
+  }
+
+  Future<void> addToCart(int itemId, int userId, int quantity) async {
+    final Map<String, dynamic> requestData = {
+      'item_id': itemId,
+      'user_id': userId,
+      'quantity': quantity,
+    };
+
+    final http.Response response = await http.post(
+      Uri.parse(apiUrl),
+      headers: <String, String>{
+        'Content-Type': 'application/json; charset=UTF-8',
+      },
+      body: jsonEncode(requestData),
+    );
+
+    if (response.statusCode == 200) {
+      // Cart item successfully added
+    } else {
+      throw Exception('Failed to add cart item: ${response.statusCode}');
+    }
   }
 }

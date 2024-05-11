@@ -78,6 +78,27 @@ class LandingPage extends StatelessWidget {
                         minimumSize: MaterialStateProperty.all<Size>(Size(screenWidth * 0.5, 50))
                       ),
                     ),
+                    SizedBox(height: 90), // Jarak antara tombol daftar dan teks anggota kelompok
+                    Text(
+                      'Anggota Kelompok',
+                      style: TextStyle(
+                        fontSize: 18,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                    SizedBox(height: 10), // Jarak antara teks anggota kelompok dan nama
+                    Text(
+                      '1. Muhammad Iqbal Fadhilah (2202292)',
+                      style: TextStyle(
+                        fontSize: 16,
+                      ),
+                    ),
+                    Text(
+                      '2. Naufal Nabil Anugrah (2201090)',
+                      style: TextStyle(
+                        fontSize: 16,
+                      ),
+                    ),
                   ],
                 ),
               ),

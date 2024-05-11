@@ -39,6 +39,13 @@ class _RegistrationFormState extends State<RegistrationForm> {
           key: _formKey,
           child: Column(
             children: <Widget>[
+              Text(
+                'Register', // Tambahkan teks 'Register' di atas ikon
+                style: TextStyle(
+                  fontSize: 24,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
               Icon(
                 Icons.account_circle,
                 size: 100.0, // Atur ukuran ikon sesuai keinginan Anda

@@ -1,3 +1,8 @@
+/* ANGGOTA KELOMPOK
+1. MUHAMMAD IQBAL FADHILAH (2202292)
+2. NAUFAL NABIL ANUGRAH (2201090)
+*/
+
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:quiz_flutter_web_api/pages/landing_page.dart';
