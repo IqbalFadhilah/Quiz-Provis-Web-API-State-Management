@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
+import 'package:quiz_flutter_web_api/pages/login_form.dart';
 
 // Item class
 class Item {
@@ -222,6 +223,7 @@ class _ItemListPageState extends State<ItemListPage> {
                   onAddToCart: (item) {
                     // Handle add to cart action here
                   },
+                  accessToken: widget.accessToken!
                 );
               },
             ),
@@ -237,9 +239,6 @@ class _ItemListPageState extends State<ItemListPage> {
     );
   }
 }
-
-
-
 
 class CustomBottomNavigationBar extends StatelessWidget {
   final int currentIndex;
@@ -273,8 +272,9 @@ class CustomBottomNavigationBar extends StatelessWidget {
 class ItemListWidget extends StatelessWidget {
   final Item item;
   final Function(Item) onAddToCart;
+  final String accessToken;
 
-  ItemListWidget({required this.item, required this.onAddToCart});
+  ItemListWidget({required this.item, required this.onAddToCart,required this.accessToken});
 
   @override
   Widget build(BuildContext context) {
@@ -294,7 +294,7 @@ class ItemListWidget extends StatelessWidget {
             decoration: BoxDecoration(
               borderRadius: BorderRadius.circular(8.0),
               image: DecorationImage(
-                image: NetworkImage(item.img_name),
+                image: NetworkImage('http://146.190.109.66:8000/items_image/${item.id}', headers: {'Authorization': 'Bearer $accessToken'}),
                 fit: BoxFit.cover,
               ),
             ),
