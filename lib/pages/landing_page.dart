@@ -80,7 +80,7 @@ class LandingPage extends StatelessWidget {
                     ),
                     SizedBox(height: 50), // Jarak antara tombol daftar dan teks anggota kelompok
                     Text(
-                      'Anggota Kelompok',
+                      'Kelompok 19',
                       style: TextStyle(
                         fontSize: 18,
                         fontWeight: FontWeight.bold,

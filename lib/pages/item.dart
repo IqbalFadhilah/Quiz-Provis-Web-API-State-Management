@@ -6,40 +6,12 @@ import 'package:quiz_flutter_web_api/model/CartItem.dart';
 import 'package:quiz_flutter_web_api/pages/chart.dart';
 import 'package:quiz_flutter_web_api/pages/statusOrder.dart';
 
-<<<<<<< HEAD
 
-import '../model/CartItem.dart';
+
 import '../model/item_model.dart';
-import 'cart.dart';
+
 
 // Item class
-=======
-class Item {
-  final int id;
-  final String title;
-  final String description;
-  final double price;
-  final String img_name;
-
-  Item({
-    required this.id,
-    required this.title,
-    required this.description,
-    required this.price,
-    required this.img_name,
-  });
-
-  factory Item.fromJson(Map<String, dynamic> json) {
-    return Item(
-      id: json['id'],
-      title: json['title'],
-      description: json['description'],
-      price: json['price'].toDouble(),
-      img_name: json['img_name'],
-    );
-  }
-}
->>>>>>> 9223af783bbabe6e14333085deb7b00d890899f0
 
 class ItemListPage extends StatefulWidget {
   final String? accessToken;
@@ -269,45 +241,6 @@ class _ItemListPageState extends State<ItemListPage> {
           ),
         ],
       ),
-<<<<<<< HEAD
-      bottomNavigationBar: BottomNavigationBar(
-        items: [
-          BottomNavigationBarItem(
-            icon: Icon(Icons.home),
-            label: 'Home',
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.shopping_cart),
-            label: 'Keranjang',
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.assignment),
-            label: 'Profil',
-          ),
-        ],
-        onTap: (int index) {
-          if (index == 1) {
-            Navigator.pushReplacement(
-              context,
-              MaterialPageRoute(
-                builder: (BuildContext context) => ItemListPage(accessToken: widget.accessToken),
-              ),
-            );
-          } else if (index == 0) {
-            Navigator.pushReplacement(
-              context,
-              MaterialPageRoute(
-                builder: (BuildContext context) => ItemListPage(accessToken: widget.accessToken),
-              ),
-            );
-          } else if (index == 2) {
-            // Navigator.pushReplacement(
-            //   context,
-            //   MaterialPageRoute(
-            //     builder: (BuildContext context) => StatusPage(),
-            //   ),
-            // );
-=======
       bottomNavigationBar: CustomBottomNavigationBar(
         currentIndex: _currentIndex,
         onTap: (int index) {
@@ -338,7 +271,6 @@ class _ItemListPageState extends State<ItemListPage> {
                 builder: (BuildContext context) => StatusPage(accessToken: widget.accessToken!),
               ),
             );
->>>>>>> 9223af783bbabe6e14333085deb7b00d890899f0
           }
         },
       ),
