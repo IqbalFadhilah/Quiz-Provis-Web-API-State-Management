@@ -2,15 +2,45 @@ import 'dart:async';
 import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
+import 'package:quiz_flutter_web_api/model/CartItem.dart';
+import 'package:quiz_flutter_web_api/pages/chart.dart';
+import 'package:quiz_flutter_web_api/pages/statusOrder.dart';
 
+<<<<<<< HEAD
 
 import '../model/CartItem.dart';
 import '../model/item_model.dart';
 import 'cart.dart';
 
 // Item class
+=======
+class Item {
+  final int id;
+  final String title;
+  final String description;
+  final double price;
+  final String img_name;
 
-// ItemListPage StatefulWidget
+  Item({
+    required this.id,
+    required this.title,
+    required this.description,
+    required this.price,
+    required this.img_name,
+  });
+
+  factory Item.fromJson(Map<String, dynamic> json) {
+    return Item(
+      id: json['id'],
+      title: json['title'],
+      description: json['description'],
+      price: json['price'].toDouble(),
+      img_name: json['img_name'],
+    );
+  }
+}
+>>>>>>> 9223af783bbabe6e14333085deb7b00d890899f0
+
 class ItemListPage extends StatefulWidget {
   final String? accessToken;
 
@@ -27,13 +57,14 @@ class _ItemListPageState extends State<ItemListPage> {
   TextEditingController _searchController = TextEditingController();
   List<Item> _items = [];
   List<Item> _filteredItems = [];
+  List<CartItem> _cartItems = [];
 
   @override
   void initState() {
     super.initState();
     _futureItems = fetchItems(widget.accessToken!);
     _pageController = PageController(initialPage: _currentIndex);
-    _futureItems = fetchItems(widget.accessToken!);
+
     Timer.periodic(Duration(seconds: 2), (Timer timer) {
       if (_currentIndex < 2) {
         _currentIndex++;
@@ -89,9 +120,38 @@ class _ItemListPageState extends State<ItemListPage> {
     return _items.where((item) => item.title.toLowerCase().contains(query.toLowerCase())).toList();
   }
 
+  void _addToCart(Item item, BuildContext context) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text('${item.title} berhasil ditambahkan ke keranjang!'),
+        duration: Duration(seconds: 2),
+        behavior: SnackBarBehavior.floating,
+      ),
+    );
+
+    var existingItemIndex = _cartItems.indexWhere((element) => element.name == item.title);
+
+    if (existingItemIndex != -1) {
+      setState(() {
+        _cartItems[existingItemIndex].quantity++;
+      });
+    } else {
+      setState(() {
+        _cartItems.add(CartItem(
+          id: item.id,
+          name: item.title,
+          imageUrl: item.img_name,
+          price: item.price,
+          quantity: 1,
+        ));
+      });
+    }
+
+    Navigator.of(context).pop(); // Close the bottom sheet
+  }
+
   @override
   Widget build(BuildContext context) {
-    double screenHeight = MediaQuery.of(context).size.height;
     return Scaffold(
       appBar: AppBar(
         leading: GestureDetector(
@@ -200,16 +260,16 @@ class _ItemListPageState extends State<ItemListPage> {
                 final item = _filteredItems[index];
                 return ItemListWidget(
                   item: item,
-                  onAddToCart: (item) {
-                    // Handle add to cart action here
-                  },
-                  accessToken: widget.accessToken!
+                  onAddToCart: _addToCart,
+                  cartItems: _cartItems,
+                  accessToken: widget.accessToken!,
                 );
               },
             ),
           ),
         ],
       ),
+<<<<<<< HEAD
       bottomNavigationBar: BottomNavigationBar(
         items: [
           BottomNavigationBarItem(
@@ -247,6 +307,38 @@ class _ItemListPageState extends State<ItemListPage> {
             //     builder: (BuildContext context) => StatusPage(),
             //   ),
             // );
+=======
+      bottomNavigationBar: CustomBottomNavigationBar(
+        currentIndex: _currentIndex,
+        onTap: (int index) {
+          setState(() {
+            _currentIndex = index;
+          });
+
+          // Handle navigation here
+          if (index == 0) {
+            Navigator.pushReplacement(
+              context,
+              MaterialPageRoute(
+                builder: (BuildContext context) => ItemListPage(accessToken: widget.accessToken!),
+              ),
+            );
+          } else if (index == 1) {
+            Navigator.pushReplacement(
+              context,
+              MaterialPageRoute(
+                builder: (BuildContext context) => CartScreen(cartItems: _cartItems, accessToken: widget.accessToken!),
+              ),
+            );
+          }
+          else if (index == 2) {
+            Navigator.pushReplacement(
+              context,
+              MaterialPageRoute(
+                builder: (BuildContext context) => StatusPage(accessToken: widget.accessToken!),
+              ),
+            );
+>>>>>>> 9223af783bbabe6e14333085deb7b00d890899f0
           }
         },
       ),
@@ -254,18 +346,22 @@ class _ItemListPageState extends State<ItemListPage> {
   }
 }
 
+
 class CustomBottomNavigationBar extends StatelessWidget {
   final int currentIndex;
   final Function(int) onTap;
 
-  CustomBottomNavigationBar({required this.currentIndex, required this.onTap});
+  const CustomBottomNavigationBar({
+    required this.currentIndex,
+    required this.onTap,
+  });
 
   @override
   Widget build(BuildContext context) {
     return BottomNavigationBar(
       currentIndex: currentIndex,
       onTap: onTap,
-      items: [
+      items: const [
         BottomNavigationBarItem(
           icon: Icon(Icons.home),
           label: 'Home',
@@ -275,24 +371,30 @@ class CustomBottomNavigationBar extends StatelessWidget {
           label: 'Keranjang',
         ),
         BottomNavigationBarItem(
-          icon: Icon(Icons.person),
-          label: 'Profil',
+          icon: Icon(Icons.assignment),
+          label: 'Status',
         ),
       ],
     );
   }
 }
 
+
 class ItemListWidget extends StatelessWidget {
   final Item item;
-  final Function(Item) onAddToCart;
+  final Function(Item, BuildContext) onAddToCart;
+  final List<CartItem> cartItems;
   final String accessToken;
 
-  ItemListWidget({required this.item, required this.onAddToCart,required this.accessToken});
+  ItemListWidget({
+    required this.item,
+    required this.onAddToCart,
+    required this.cartItems,
+    required this.accessToken,
+  });
 
   @override
   Widget build(BuildContext context) {
-    double screenHeight = MediaQuery.of(context).size.height;
     return Container(
       padding: EdgeInsets.all(8.0),
       margin: EdgeInsets.symmetric(vertical: 4.0, horizontal: 8.0),
@@ -341,18 +443,25 @@ class ItemListWidget extends StatelessWidget {
                       context: context,
                       builder: (BuildContext context) {
                         return Container(
-                          height: screenHeight * 0.5,
+                          height: MediaQuery.of(context).size.height * 0.5,
                           padding: EdgeInsets.all(16.0),
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              Image.network(
-                                'http://146.190.109.66:8000/items_image/${item.id}', headers: {'Authorization': 'Bearer $accessToken'},
-                                height: screenHeight / 5,
-                                width: double.infinity,
-                                fit: BoxFit.cover,
+                              Container(
+                                width: 100,
+                                height: 100,
+                                decoration: BoxDecoration(
+                                  image: DecorationImage(
+                                    image: NetworkImage(
+                                      'http://146.190.109.66:8000/items_image/${item.id}',
+                                      headers: {'Authorization': 'Bearer $accessToken'},
+                                    ),
+                                    fit: BoxFit.cover,
+                                  ),
+                                ),
                               ),
-                              SizedBox(height: 10),
+                              SizedBox(height: 5),
                               Text(
                                 item.title,
                                 style: TextStyle(
@@ -376,13 +485,13 @@ class ItemListWidget extends StatelessWidget {
                                   fontSize: 18,
                                 ),
                               ),
-                              SizedBox(height: 20),
+                              SizedBox(height: 10),
                               Row(
                                 children: [
                                   Expanded(
                                     child: ElevatedButton(
                                       onPressed: () {
-                                        onAddToCart(item);
+                                        onAddToCart(item, context);
                                       },
                                       style: ButtonStyle(
                                         backgroundColor: MaterialStateProperty.all<Color>(
@@ -440,42 +549,5 @@ class PromoCard extends StatelessWidget {
         ),
       ),
     );
-  }
-}
-
-class CartService {
-  final String apiUrl = 'http://146.190.109.66:8000/carts/';
-
-  Future<List<CartItem>> fetchUserCart(int userId) async {
-    final String url = '$apiUrl$userId';
-    final response = await http.get(Uri.parse(url));
-    if (response.statusCode == 200) {
-      final List<dynamic> data = json.decode(response.body);
-      return data.map((item) => CartItem.fromJson(item)).toList();
-    } else {
-      throw Exception('Failed to load cart items: ${response.statusCode}');
-    }
-  }
-
-  Future<void> addToCart(int itemId, int userId, int quantity) async {
-    final Map<String, dynamic> requestData = {
-      'item_id': itemId,
-      'user_id': userId,
-      'quantity': quantity,
-    };
-
-    final http.Response response = await http.post(
-      Uri.parse(apiUrl),
-      headers: <String, String>{
-        'Content-Type': 'application/json; charset=UTF-8',
-      },
-      body: jsonEncode(requestData),
-    );
-
-    if (response.statusCode == 200) {
-      // Cart item successfully added
-    } else {
-      throw Exception('Failed to add cart item: ${response.statusCode}');
-    }
   }
 }
